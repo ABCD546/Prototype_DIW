@@ -187,6 +187,40 @@
         @keyframes spin  { from { transform: rotate(0deg); } to { transform: rotate(360deg); } }
         @keyframes pulse { 0%,100% { opacity:1; transform:scale(1); } 50% { opacity:.5; transform:scale(1.08); } }
         @keyframes ping  { 75%,100% { transform:scale(1.4); opacity:0; } }
+
+        /* ─── MOBILE LAYOUT (จอกว้างน้อยกว่า 768px) ───────────────────── */
+        @media (max-width: 768px) {
+            #header {
+                flex-wrap: wrap;
+                padding: 8px 10px;
+                gap: 6px;
+            }
+            #header .icon { font-size: 18px; }
+            #header h1 { font-size: 12px; line-height: 1.2; }
+            #header h1 span { display: none; } /* ซ่อน subtitle บนจอเล็กเพื่อประหยัดพื้นที่ */
+            #header-layer-toggles {
+                position: static;
+                transform: none;
+                order: 3;
+                width: 100%;
+                justify-content: center;
+                flex-wrap: wrap;
+                gap: 5px;
+            }
+            .layer-toggle-btn { font-size: 9px; padding: 5px 7px; }
+            .layer-toggle-btn svg { width: 11px; height: 11px; }
+            #header .stats { display: none; } /* ซ่อนตัวเลขสถิติบนจอเล็ก เหลือแต่ปุ่มควบคุมจำเป็น */
+
+            /* แผง Layer ฝั่งซ้าย: ลอยทับแผนที่แทนการดันบีบพื้นที่แผนที่ */
+            #sidebar:not(.collapsed) {
+                position: absolute;
+                top: 0;
+                left: 0;
+                height: 100%;
+                z-index: 1500;
+                box-shadow: 4px 0 16px rgba(0,0,0,0.4);
+            }
+        }
     </style>
 </head>
 <body>
@@ -549,7 +583,11 @@ window.addEventListener('load', function() {
 
 // ─── SIDEBAR TOGGLE ────────────────────────────────────────────────────
 var sidebarEl = document.getElementById('sidebar');
-var sidebarCollapsed = false;
+// เริ่มต้นพับเก็บแผง Layer อัตโนมัติบนจอมือถือ (กว้างน้อยกว่า 768px) กันบังแผนที่
+var sidebarCollapsed = window.innerWidth < 768;
+if (sidebarCollapsed) {
+    sidebarEl.classList.add('collapsed');
+}
 
 function toggleSidebar() {
     sidebarCollapsed = !sidebarCollapsed;
@@ -560,6 +598,7 @@ function toggleSidebar() {
 
 // ปุ่ม "แผง Layer" บน header — ย่อ/ขยายแผง legend ฝั่งซ้ายของแผนที่เอง
 const btnToggleLayerPanel = document.getElementById('btn-toggle-layerpanel');
+btnToggleLayerPanel.classList.toggle('inactive', sidebarCollapsed);
 btnToggleLayerPanel.addEventListener('click', function() {
     toggleSidebar();
     btnToggleLayerPanel.classList.toggle('inactive', sidebarCollapsed);

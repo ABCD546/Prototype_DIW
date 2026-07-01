@@ -45,7 +45,10 @@ export default function InteractiveMap({
   const iframeRef = useRef<HTMLIFrameElement>(null);
   const [isMapReady, setIsMapReady] = useState(false);
   const [cpTab, setCpTab] = useState<'stats' | 'risk'>('stats');
-  const [isSidebarOpen, setIsSidebarOpen] = useState(true);
+  // เริ่มต้นซ่อนแผงข้อมูลด้านขวาบนจอมือถือ (กว้างน้อยกว่า 768px) กันบังแผนที่ทั้งจอ — จอใหญ่ยังคงเปิดตามเดิม
+  const [isSidebarOpen, setIsSidebarOpen] = useState(() =>
+    typeof window === 'undefined' ? true : window.innerWidth >= 768
+  );
   const [isWhatIfOpen, setIsWhatIfOpen] = useState(false);
 
   const selectedFactory   = factories.find((f) => f.id === selectedId);
@@ -82,6 +85,7 @@ export default function InteractiveMap({
 
       if (data.type === 'SELECT_ENTITY') {
         onSelectEntity(data.id, data.entityType);
+        setIsSidebarOpen(true); // แตะหมุดปุ๊บ เปิดแผงข้อมูลให้เห็นทันที แม้ค่าเริ่มต้นบนมือถือจะซ่อนไว้
       }
 
       // ปุ่ม "ข้อมูล" ในเฮดเดอร์ของ map.html ขอให้ parent สลับแผงข้อมูลด้านขวา
