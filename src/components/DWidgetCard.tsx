@@ -125,12 +125,12 @@ export function DefenseBanner({
         {/* Confidence metric indicator and justice description badge */}
         <div className="flex sm:flex-row flex-col gap-4 items-stretch lg:items-center shrink-0">
           <div className="bg-white/90 backdrop-blur-xs px-4 py-3 border border-slate-200 rounded-xl space-y-1 text-[11px] font-sans sm:max-w-[220px] leading-snug shadow-sm">
-            <span className="font-bold text-slate-800 uppercase tracking-wider block">⚖️ ผลลัพธ์แกะรอยนิ้วมือ</span>
+            <span className="font-bold text-slate-800 uppercase tracking-wider block">⚖️ ผลลัพธ์การแกะรอยแหล่งที่มาของน้ำเสีย</span>
             <p className="text-slate-500 text-[10.5px]">
               {alertLevel === 'warning' 
                 ? 'ตรวจพบรอยมวลเกษตรและน้ำทิ้งเทศบาลชุมชน ไม่พบรอยเชื่อมต่อพันธะโมเลกุลเคมีระบายยากของพิกัดกลุ่มงานอุตสาหกรรม' 
                 : alertLevel === 'critical'
-                ? 'ค่าตรวจขัดแย้งปล่อยน้ำอุตสาหกรรรล้นระดับวิกฤต รอยเชื่อมโยงเคมีภัณฑ์ทับตำแหน่งกับจุดมลพิษแม่น้ำพุ่งสูงสุดจริง'
+                ? 'คาดการยืนยัน สารเคมีจากโรงงานอุตสาหกรรมตรงกับจุดที่แม่น้ำวิกฤตที่สุด ชี้ชัดว่ามีการลักลอบปล่อยน้ำเสีย'
                 : 'ตัวแปรสภาวะแวดล้อมและพฤติกรรมระบายต้นน้ำ-กลางน้ำ-ปลายน้ำ ทำงานสอดคล้องอยู่ภายใต้กรอบมาตรฐานคพ.ปกติดี'}
             </p>
           </div>

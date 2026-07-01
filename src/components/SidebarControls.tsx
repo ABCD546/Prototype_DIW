@@ -4,8 +4,8 @@
  */
 
 import React from 'react';
-import { Scenario, Factory } from '../types';
-import { SCENARIOS, DIW_STANDARDS } from '../data';
+import { Scenario } from '../types';
+import { SCENARIOS } from '../data';
 import { 
   Layers, 
   Settings, 
@@ -24,8 +24,6 @@ interface SidebarControlsProps {
   onRiverFecalChange: (val: number) => void;
   riverNitrogen: number;
   onRiverNitrogenChange: (val: number) => void;
-  factories: Factory[];
-  onFactoryParamChange: (factoryId: string, param: 'dischargeBOD' | 'dischargeCOD' | 'actualQ', val: number) => void;
   onResetToScenarioDefaults: () => void;
 }
 
@@ -38,8 +36,6 @@ export default function SidebarControls({
   onRiverFecalChange,
   riverNitrogen,
   onRiverNitrogenChange,
-  factories,
-  onFactoryParamChange,
   onResetToScenarioDefaults,
 }: SidebarControlsProps) {
   
@@ -52,7 +48,7 @@ export default function SidebarControls({
         <div>
           <h3 className="text-sm font-bold uppercase tracking-wider text-slate-900 flex items-center gap-2">
             <Layers className="w-5 h-5 text-blue-600" />
-            ระบบจำลองคุณภาพน้ำ กรอ.
+            ระบบจำลองคุณภาพน้ำ 
           </h3>
           <p className="text-xs text-slate-500 mt-1 leading-snug max-w-2xl">
             ติดตามและทำนายวิกฤตสิ่งแวดล้มลุ่มแม่น้ำท่าจีน ด้วยโมเดลระบบจำลองระดับสารผสมคลาดเคลื่อนทางคณิตศาสตร์
@@ -75,7 +71,7 @@ export default function SidebarControls({
         <div className="space-y-3">
           <label className="text-[10px] font-bold text-slate-500 uppercase tracking-widest block flex items-center gap-1.5">
             <Calendar className="w-4 h-4 text-blue-600" />
-            ประวัติข้อมูลย้อนหลังเชิงเหตุการณ์
+            จำลองข้อมูลย้อนหลังเชิงเหตุการณ์
           </label>
           
           <div className="space-y-1.5 max-h-[320px] overflow-y-auto custom-scrollbar pr-1">
@@ -150,7 +146,7 @@ export default function SidebarControls({
               {riverFlowRate <= 15000 && (
                 <div className="flex gap-1.5 items-start px-2 py-1 rounded bg-amber-50 border border-amber-200 text-[9px] text-amber-700 leading-tight">
                   <CloudSun className="w-3.5 h-3.5 text-amber-600 shrink-0" />
-                  <span>แม่น้ำไหลแร้งขัด: ความสามารถฟื้นตัวเจือจางหดลดลงต่ำวิกฤต</span>
+                  <span>แม่น้ำไหลแรงขัด: ความสามารถฟื้นตัวลดลงต่ำขั้นวิกฤต</span>
                 </div>
               )}
             </div>
@@ -206,101 +202,6 @@ export default function SidebarControls({
           </div>
         </div>
 
-      </div>
-
-      {/* 3. Custom Manual Factory Outflow Controllers — responsive grid (full width) */}
-      <div className="space-y-3 pt-4 border-t border-slate-100 text-slate-700 text-xs">
-        <label className="text-[10px] font-bold text-slate-500 uppercase tracking-widest block">
-          แทรกแซงจำลองอัตราปล่อยน้ำเสียโรงงาน (What-If)
-        </label>
-
-        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-3 max-h-[480px] overflow-y-auto custom-scrollbar pr-1">
-          {factories.map((factory) => {
-            const isTextile = factory.industryType.includes('สิ่งทอ') || factory.industryType.includes('ฟอกย้อม');
-            const codMax = isTextile ? DIW_STANDARDS.FACTORY_COD_MAX_TEXTILE : DIW_STANDARDS.FACTORY_COD_MAX;
-            const hasBODViolation = factory.dischargeBOD > DIW_STANDARDS.FACTORY_BOD_MAX;
-            const hasCODViolation = factory.dischargeCOD > codMax;
-            const hasAnyViolation = hasBODViolation || hasCODViolation;
-            return (
-              <div 
-                key={factory.id} 
-                className={`p-2.5 rounded-xl border space-y-1.5 transition-colors ${
-                  hasAnyViolation 
-                    ? 'bg-rose-50/70 border-rose-200' 
-                    : 'bg-slate-50/50 border-slate-200'
-                }`}
-              >
-                <div className="flex items-center justify-between border-b border-slate-200/50 pb-1">
-                  <span className="font-extrabold text-slate-800 truncate max-w-[150px]">
-                    {factory.id} - {factory.name.replace(/บจก\.|โรงงาน|อุตสาหกรรม/g, '').trim()}
-                  </span>
-                  <span className={`text-[8.5px] px-1.5 py-0.2 rounded font-bold ${
-                    hasAnyViolation ? 'bg-rose-100 text-rose-700 border border-rose-200/30' : 'bg-emerald-100 text-emerald-700/80 border border-emerald-200/20'
-                  }`}>
-                    {hasAnyViolation ? 'ระบายล้นพิกัด' : 'ปกติความสะอาด'}
-                  </span>
-                </div>
-
-                {/* Effluent BOD slider */}
-                <div className="space-y-0.5">
-                  <div className="flex justify-between text-[9px] text-slate-500">
-                    <span>ความเข้มข้น BOD น้ำทิ้ง:</span>
-                    <span className={`font-mono font-bold ${hasBODViolation ? 'text-rose-600' : 'text-slate-800'}`}>
-                      {factory.dischargeBOD} มก./ลิตร
-                    </span>
-                  </div>
-                  <input
-                    type="range"
-                    min={5}
-                    max={250}
-                    step={5}
-                    value={factory.dischargeBOD}
-                    onChange={(e) => onFactoryParamChange(factory.id, 'dischargeBOD', parseInt(e.target.value))}
-                    className="w-full h-1 bg-slate-200 rounded-lg appearance-none cursor-pointer"
-                  />
-                </div>
-
-                {/* Effluent COD slider */}
-                <div className="space-y-0.5">
-                  <div className="flex justify-between text-[9px] text-slate-500">
-                    <span>ความเข้มข้น COD น้ำทิ้ง:</span>
-                    <span className={`font-mono font-bold ${hasCODViolation ? 'text-rose-600' : 'text-slate-800'}`}>
-                      {factory.dischargeCOD} มก./ลิตร
-                    </span>
-                  </div>
-                  <input
-                    type="range"
-                    min={20}
-                    max={800}
-                    step={10}
-                    value={factory.dischargeCOD}
-                    onChange={(e) => onFactoryParamChange(factory.id, 'dischargeCOD', parseInt(e.target.value))}
-                    className="w-full h-1 bg-slate-200 rounded-lg appearance-none cursor-pointer"
-                  />
-                </div>
-
-                {/* Effluent Q slider */}
-                <div className="space-y-0.5">
-                  <div className="flex justify-between text-[9px] text-slate-500">
-                    <span>ปริมาตรปล่อยน้ำเสีย:</span>
-                    <span className="font-mono font-bold text-slate-800">
-                      {factory.actualQ.toLocaleString()} ลบ.ม./วัน
-                    </span>
-                  </div>
-                  <input
-                    type="range"
-                    min={100}
-                    max={10000}
-                    step={100}
-                    value={factory.actualQ}
-                    onChange={(e) => onFactoryParamChange(factory.id, 'actualQ', parseInt(e.target.value))}
-                    className="w-full h-1 bg-slate-200 rounded-lg appearance-none cursor-pointer"
-                  />
-                </div>
-              </div>
-            );
-          })}
-        </div>
       </div>
     </div>
   );

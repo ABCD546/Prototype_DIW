@@ -20,7 +20,10 @@ import {
   Sprout,
   FlameKindling,
   ClipboardList,
-  AlertCircle
+  AlertCircle,
+  Settings,
+  ChevronDown,
+  ChevronUp
 } from 'lucide-react';
 
 interface InteractiveMapProps {
@@ -28,6 +31,7 @@ interface InteractiveMapProps {
   checkpoints: Checkpoint[];
   selectedId: string | null;
   onSelectEntity: (id: string, type: 'factory' | 'checkpoint') => void;
+  onFactoryParamChange: (factoryId: string, param: 'dischargeBOD' | 'dischargeCOD' | 'actualQ', val: number) => void;
 }
 
 export default function InteractiveMap({
@@ -35,11 +39,13 @@ export default function InteractiveMap({
   checkpoints,
   selectedId,
   onSelectEntity,
+  onFactoryParamChange,
 }: InteractiveMapProps) {
   const iframeRef = useRef<HTMLIFrameElement>(null);
   const [isMapReady, setIsMapReady] = useState(false);
   const [cpTab, setCpTab] = useState<'stats' | 'risk'>('stats');
   const [isSidebarOpen, setIsSidebarOpen] = useState(true);
+  const [isWhatIfOpen, setIsWhatIfOpen] = useState(false);
 
   const selectedFactory   = factories.find((f) => f.id === selectedId);
   const selectedCheckpoint = checkpoints.find((cp) => cp.id === selectedId);
@@ -60,6 +66,7 @@ export default function InteractiveMap({
   // Reset tab เมื่อเปลี่ยน entity
   useEffect(() => {
     setCpTab('stats');
+    setIsWhatIfOpen(false);
   }, [selectedId]);
 
   // รับ postMessage จาก iframe (MAP_READY และ SELECT_ENTITY)
@@ -75,11 +82,22 @@ export default function InteractiveMap({
       if (data.type === 'SELECT_ENTITY') {
         onSelectEntity(data.id, data.entityType);
       }
+
+      // ปุ่ม "ข้อมูล" ในเฮดเดอร์ของ map.html ขอให้ parent สลับแผงข้อมูลด้านขวา
+      if (data.type === 'TOGGLE_INFO_PANEL') {
+        setIsSidebarOpen((prev) => !prev);
+      }
     }
 
     window.addEventListener('message', handleMessage);
     return () => window.removeEventListener('message', handleMessage);
   }, [onSelectEntity]);
+
+  // แจ้งสถานะแผงข้อมูลกลับไปให้ map.html เพื่ออัปเดตหน้าตาปุ่ม "ข้อมูล" (active/inactive)
+  useEffect(() => {
+    if (!isMapReady || !iframeRef.current?.contentWindow) return;
+    iframeRef.current.contentWindow.postMessage({ type: 'INFO_PANEL_STATE', open: isSidebarOpen }, '*');
+  }, [isMapReady, isSidebarOpen]);
 
   // ส่ง markers ไปให้ iframe ทุกครั้งที่ข้อมูลเปลี่ยน
   useEffect(() => {
@@ -117,7 +135,7 @@ export default function InteractiveMap({
             <span className="w-2.5 h-2.5 rounded-full bg-rose-500 inline-block border border-white shadow-xs" /> จุดคัดตรวจ (วิกฤต 2 ค่าขึ้นไป)
           </span>
           <span className="flex items-center gap-1">
-            <span className="w-2.5 h-2.5 rounded-full bg-sky-500 inline-block border border-white shadow-xs" /> โรงงานผ่านเกณฑ์ปกติ
+            <span className="w-2.5 h-2.5 rounded-full bg-slate-500 inline-block border border-white shadow-xs" /> โรงงานผ่านเกณฑ์ปกติ
           </span>
           <span className="flex items-center gap-1">
             <span className="w-2.5 h-2.5 rounded-full bg-rose-500 inline-block border border-white shadow-xs" /> โรงงานปล่อยมลพิษล้นเกณฑ์
@@ -127,30 +145,6 @@ export default function InteractiveMap({
 
       {/* Map + Sidebar */}
       <div className="relative bg-slate-50 rounded-xl overflow-hidden border border-slate-250 shadow-inner flex flex-col md:flex-row" style={{ height: '860px' }}>
-
-        {/* ปุ่มควบคุม 2 ปุ่ม — ยึดมุมขวาล่างของ map box เสมอ ไม่ขยับตามแถบ */}
-        <div className="absolute bottom-3 right-3 z-30 flex flex-col gap-1.5 items-end">
-          <button
-            onClick={() => {
-              if (iframeRef.current?.contentWindow) {
-                iframeRef.current.contentWindow.postMessage({ type: 'TOGGLE_SIDEBAR' }, '*');
-              }
-            }}
-            className="flex items-center gap-1.5 px-2.5 py-1.5 rounded-lg bg-slate-900/90 text-white text-[11px] font-bold shadow-lg border border-slate-700 hover:bg-slate-800 transition-colors backdrop-blur-sm whitespace-nowrap"
-            title="ย่อ/ขยายแผง Layer แผนที่"
-          >
-            <MapPin className="w-3.5 h-3.5 text-sky-400" />
-            แผง Layer
-          </button>
-          <button
-            onClick={() => setIsSidebarOpen((prev) => !prev)}
-            className="flex items-center gap-1.5 px-2.5 py-1.5 rounded-lg bg-slate-900/90 text-white text-[11px] font-bold shadow-lg border border-slate-700 hover:bg-slate-800 transition-colors backdrop-blur-sm whitespace-nowrap"
-            title={isSidebarOpen ? 'ซ่อนแผงข้อมูล' : 'แสดงแผงข้อมูล'}
-          >
-            <Shield className="w-3.5 h-3.5 text-sky-400" />
-            {isSidebarOpen ? 'ซ่อนข้อมูล' : 'แสดงข้อมูล'}
-          </button>
-        </div>
 
         {/* iframe แทน Leaflet React */}
         <div className="flex-1 relative min-h-0">
@@ -268,6 +262,86 @@ export default function InteractiveMap({
                   }`}>
                     {selectedFactory.status === 'Violation' ? '🚨 ตรวจเจอมลพิษล้นเกณฑ์' : '🛡️ สอดคล้องตามเกณฑ์ข้อบังคับ'}
                   </span>
+                </div>
+
+                {/* หัวข้อพับเก็บ: จำลองข้อมูลโรงงาน (What-If) — ซ่อนไว้ก่อน กดเปิดจึงแสดงสไลเดอร์ */}
+                <div className="border-t border-slate-800 pt-3">
+                  <button
+                    type="button"
+                    onClick={() => setIsWhatIfOpen((prev) => !prev)}
+                    className="w-full flex items-center justify-between gap-2 text-[10px] font-black uppercase tracking-wider text-slate-300 hover:text-white transition-colors cursor-pointer"
+                  >
+                    <span className="flex items-center gap-1.5">
+                      <Settings className="w-3.5 h-3.5 text-sky-400" />
+                      จำลองข้อมูลโรงงาน (What-If)
+                    </span>
+                    {isWhatIfOpen ? <ChevronUp className="w-3.5 h-3.5" /> : <ChevronDown className="w-3.5 h-3.5" />}
+                  </button>
+
+                  {isWhatIfOpen && (
+                    <div className="mt-3 bg-slate-950 p-2.5 rounded-lg border border-slate-800 space-y-3">
+                      {/* Effluent BOD slider */}
+                      <div className="space-y-0.5">
+                        <div className="flex justify-between text-[9px] text-slate-400">
+                          <span>ความเข้มข้น BOD น้ำทิ้ง:</span>
+                          <span className={`font-mono font-bold ${
+                            selectedFactory.dischargeBOD > DIW_STANDARDS.FACTORY_BOD_MAX ? 'text-rose-400' : 'text-emerald-400'
+                          }`}>
+                            {selectedFactory.dischargeBOD} มก./ลิตร
+                          </span>
+                        </div>
+                        <input
+                          type="range"
+                          min={5}
+                          max={250}
+                          step={5}
+                          value={selectedFactory.dischargeBOD}
+                          onChange={(e) => onFactoryParamChange(selectedFactory.id, 'dischargeBOD', parseInt(e.target.value))}
+                          className="w-full h-1 accent-sky-500 bg-slate-800 rounded-lg appearance-none cursor-pointer"
+                        />
+                      </div>
+
+                      {/* Effluent COD slider */}
+                      <div className="space-y-0.5">
+                        <div className="flex justify-between text-[9px] text-slate-400">
+                          <span>ความเข้มข้น COD น้ำทิ้ง:</span>
+                          <span className={`font-mono font-bold ${
+                            selectedFactory.dischargeCOD > DIW_STANDARDS.FACTORY_COD_MAX ? 'text-rose-400' : 'text-emerald-400'
+                          }`}>
+                            {selectedFactory.dischargeCOD} มก./ลิตร
+                          </span>
+                        </div>
+                        <input
+                          type="range"
+                          min={20}
+                          max={800}
+                          step={10}
+                          value={selectedFactory.dischargeCOD}
+                          onChange={(e) => onFactoryParamChange(selectedFactory.id, 'dischargeCOD', parseInt(e.target.value))}
+                          className="w-full h-1 accent-sky-500 bg-slate-800 rounded-lg appearance-none cursor-pointer"
+                        />
+                      </div>
+
+                      {/* Effluent Q slider */}
+                      <div className="space-y-0.5">
+                        <div className="flex justify-between text-[9px] text-slate-400">
+                          <span>ปริมาตรปล่อยน้ำเสีย:</span>
+                          <span className="font-mono font-bold text-slate-200">
+                            {selectedFactory.actualQ.toLocaleString()} ลบ.ม./วัน
+                          </span>
+                        </div>
+                        <input
+                          type="range"
+                          min={100}
+                          max={10000}
+                          step={100}
+                          value={selectedFactory.actualQ}
+                          onChange={(e) => onFactoryParamChange(selectedFactory.id, 'actualQ', parseInt(e.target.value))}
+                          className="w-full h-1 accent-sky-500 bg-slate-800 rounded-lg appearance-none cursor-pointer"
+                        />
+                      </div>
+                    </div>
+                  )}
                 </div>
               </div>
 

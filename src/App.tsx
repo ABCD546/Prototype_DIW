@@ -156,12 +156,12 @@ export default function App() {
 
   if (bViolating) {
     alertLevel = 'critical';
-    dynamicSystemJudgment = `คำแจ้งเตือนสำคัญ: ตรวจพบพฤติกรรมการปล่อยมลพิษระบายอุตสาหกรรรล้นมาตรฐานสากล สืบรากเหง้าต้นเหตุไปยังโรงงานรหัส ${violatedFactories.join(', ')}`;
-    dynamicDefenseStatus = `พระราชบัญญัติบังคับใช้กฎหมาย: เริ่มกระบวนการตรวจสอบคดี เครื่องมือเจาะอัตลักษณ์โมเลกุลระบุสารเคมีสอดรับทับซ้อนชัดเจนยืนยันว่าโรงงาน ${violatedFactories.join(' และ ')} ปฏิบัติปนเปื้อนเกินมาตรฐานระบายทิ้งสูงสุด ส่วนโรงงานระแวกใกล้เคียงอื่นๆ ตรวจสอบแล้วสอดคล้องปกติ`;
+    dynamicSystemJudgment = `คำแจ้งเตือนสำคัญ: ตรวจพบพฤติกรรมการปล่อยมลพิษระบายอุตสาหกรรรล้นมาตรฐานสากล ตรวจสอบต้นตอพบเหตุมาจากโรงงานรหัส ${violatedFactories.join(', ')}`;
+    dynamicDefenseStatus = `มาตรการดำเนินคดีและเข้าตรวจสอบพื้นที่: เริ่มกระบวนการตรวจสอบและดำเนินคดีตามกฎหมายทันที ลงพื้นที่ตรวจพิสูจน์สารเคมีเชิงลึก เพื่อยืนยันหลักฐานการเชื่อมโยงของสารปนเปื้อน โรงงาน ${violatedFactories.join(' และ ')} ว่ามีการระบายน้ำเสียเกินค่ามาตรฐานจริง  เพื่อยืนยันความถูกต้อง`;
   } else if (downstreamCP.fecalColiform > DIW_STANDARDS.RIVER_FECAL_MAX || downstreamCP.nitrogen > DIW_STANDARDS.RIVER_NITROGEN_MAX) {
     alertLevel = 'warning';
-    dynamicSystemJudgment = 'สถานะข้อแก้ต่าง กรอ.: กลุ่มอุตสาหกรรมในเครือตรวจสอบแล้ว คลีนปลอดภัย 100% ต้นตอมลพิษเกิดจากเศษปฏิกูลเทศบาลชุมชนและสารดินปุ๋ยเกษตรกรรมล่างลุ่ม';
-    dynamicDefenseStatus = 'คำแถลงอย่างเป็นทางการโดยวิทยากรฟิสิกส์: รอยนิ้วมือนิวเคลียร์ในโมเลกุลปลายน้ำพิสูจน์แล้วว่า มวลความเน่าเสีย CP03 ทั้งหมดเกิดขึ้นจากมลพิษแบบกระจายไร้จุดกำเนิดเด่นชัด (น้ำซึมบ่อโสโครกห้องน้ำอาคารบ้านเรือนชุมชนร่วมกับดินเกลือไนโตรเกษตร) โรงงานอุตสาหกรรมทั้งหมดสอดคล้องรักษากฎหมายอย่างสุจริตไร้พันธะ';
+    dynamicSystemJudgment = 'ผลตรวจชี้เป้า "ภาคเกษตรกรรม" เป็นต้นเหตุมลพิษ: กลุ่มอุตสาหกรรมในเครือตรวจสอบแล้วไม่เกินมาตรฐาน   ต้นตอมลพิษเกิดจากสารเคมีและปุ๋ยเคมีจากไร่นาในพื้นที่ ร่วมกับน้ำเสียจากชุมชน';
+    dynamicDefenseStatus = 'ผลวิเคราะห์ยืนยัน: สารเคมี ในน้ำเสียระบุชัดเจนว่า สารปนเปื้อน มาจากปุ๋ยเคมีและดินเค็มจากไร่นา ผสมกับน้ำทิ้งตามบ้านเรือน ';
   } else if (riverFlowRate <= 15000) {
     alertLevel = 'warning';
     dynamicSystemJudgment = 'จุดเฝ้าระวังภัยล่วงหน้า: ลำน้ำท่าแม่น้ำไหลแห้งวิกฤต กำลังเจือจางปกติเหือดแห้ง มีความเสี่ยงอัตรารอระบายตกตะกอนตามธรรมชาติสูง';
@@ -169,7 +169,7 @@ export default function App() {
   } else {
     alertLevel = 'safe';
     dynamicSystemJudgment = 'ทุกจุดตรวจวัดสถานีอยู่ในสภาวะปลอดภัย: พารามิเตอร์ลุ่มน้ำทั้งหมดทำงานได้อย่างดีเยี่ยมตามมาตรฐานเป้าหมาย';
-    dynamicDefenseStatus = 'รายงานสุขภาพลำน้ำและนิเวศวิทยา: อัตราไหลหลักไหลเวียนปกติ สัดส่วนอินทรีย์ในชุมชนอยู่ในเกลี่ยทรงตัว บ่อระบายอากาศโรงงานทุกสถานประกอบการได้รับการคุมบำบัดอย่างสม่ำเสมอ';
+    dynamicDefenseStatus = 'รายงานสุขภาพลำน้ำและนิเวศวิทยา: อัตราไหลหลักไหลเวียนปกติ สัดส่วนอินทรีย์ในชุมชนอยู่ในระดับทรงตัว บ่อบำบัดน้ำเสียโรงงานทุกสถานประกอบการได้รับการตรวจสอบและบำบัดอย่างสม่ำเสมอ';
   }
 
   // Calculate sum of actual discharges vs allowed discharges to show capacity indices
@@ -205,10 +205,10 @@ export default function App() {
                 <span className="text-[10px] text-slate-400 font-mono tracking-wide">THA CHIN PILOT BASIN</span>
               </div>
               <h1 className="text-lg md:text-xl font-bold tracking-tight text-white mt-0.5 font-sans">
-                ระบบปกป้องและควบคุมมลพิษทางน้ำภาคอุตสาหกรรม (กรอ. ลุ่มน้ำท่าจีน)
+                ระบบปกป้องและเฝ้าระวังควบคุมมลพิษทางน้ำภาคอุตสาหกรรม (กรอ. ลุ่มน้ำท่าจีน)
               </h1>
               <p className="text-xs text-slate-400 leading-snug max-w-2xl mt-0.5 font-medium">
-                ระบบสนับสนุนการตัดสินใจทางวิทยาศาสตร์ด้วยการจำลองและระบุรอยนิ้วมือสารปนเปื้อน เพื่อเป็นหลักฐานปกป้องโรงวารอุตสาหกรรมผู้ปฏิบัติตามกฎหมายอย่างเที่ยงธรรม
+                ระบบสนับสนุนการตัดสินใจทางวิทยาศาสตร์ด้วยการจำลองและระบุสารปนเปื้อน เพื่อเป็นหลักฐานปกป้องโรงงานอุตสาหกรรมผู้ปฏิบัติตามกฎหมายอย่างเที่ยงธรรม
               </p>
             </div>
           </div>
@@ -280,6 +280,7 @@ export default function App() {
               checkpoints={checkpoints}
               selectedId={selectedEntityId}
               onSelectEntity={handleSelectEntity}
+              onFactoryParamChange={handleFactoryParamChange}
             />
           </div>
 
@@ -294,8 +295,6 @@ export default function App() {
               onRiverFecalChange={setRiverFecal}
               riverNitrogen={riverNitrogen}
               onRiverNitrogenChange={setRiverNitrogen}
-              factories={factories}
-              onFactoryParamChange={handleFactoryParamChange}
               onResetToScenarioDefaults={handleResetToScenarioDefaults}
             />
           </div>
@@ -343,9 +342,9 @@ export default function App() {
               <span className="text-xs font-bold text-slate-400 uppercase tracking-widest block flex items-center gap-1">
                 🏭 พิกัดปล่อยน้ำเสียกลุ่มอุตสาหกรรมในลุ่มแม่น้ำ (สถานประกอบการขึ้นทะเบียน 5 โหนด)
               </span>
-              <div className="overflow-x-auto border border-slate-200 rounded-xl">
+              <div className="overflow-x-auto overflow-y-auto max-h-[300px] border border-slate-200 rounded-xl">
                 <table className="w-full text-left border-collapse text-xs">
-                  <thead>
+                  <thead className="sticky top-0 z-10">
                     <tr className="bg-slate-50 border-b border-slate-200 text-slate-500 font-bold">
                       <th className="p-3">รหัสโรงงาน</th>
                       <th className="p-3">ชื่อสถานประกอบการ</th>
@@ -414,9 +413,9 @@ export default function App() {
               <span className="text-xs font-bold text-slate-400 uppercase tracking-widest block flex items-center gap-1">
                 🌊 สถานีจุดคัดส่งวัดประเมินคุณภาพลำน้ำหลัก (เรียงจากพิกัดระดัลต้นลุ่มน้ำลงหาปลายลุ่มน้ำ)
               </span>
-              <div className="overflow-x-auto border border-slate-200 rounded-xl">
+              <div className="overflow-x-auto overflow-y-auto max-h-[300px] border border-slate-200 rounded-xl">
                 <table className="w-full text-left border-collapse text-xs">
-                  <thead>
+                  <thead className="sticky top-0 z-10">
                     <tr className="bg-slate-50 border-b border-slate-200 text-slate-500 font-bold">
                       <th className="p-3">รหัสโหนดสถานี</th>
                       <th className="p-3">ชื่อสถานีคัดตรวจร่วม</th>
@@ -520,3 +519,7 @@ export default function App() {
     </div>
   );
 }
+function calcStatus(merged: { id: string; name: string; industryType: string; lat: number; lon: number; allowedQ: number; actualQ: number; dischargeBOD: number; dischargeCOD: number; dischargeEC: number; dischargeFecal?: number; dischargeNitrogen?: number; status: "Compliant" | "Violation"; }): any {
+  throw new Error('Function not implemented.');
+}
+
