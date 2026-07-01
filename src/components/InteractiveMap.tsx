@@ -23,7 +23,8 @@ import {
   AlertCircle,
   Settings,
   ChevronDown,
-  ChevronUp
+  ChevronUp,
+  X
 } from 'lucide-react';
 
 interface InteractiveMapProps {
@@ -162,11 +163,11 @@ export default function InteractiveMap({
           />
         </div>
 
-        {/* Sidebar ขวา — ลอยทับแผนที่ ไม่ดันแถบ layer */}
-        <div className={`absolute top-18 right-0 h-full bg-slate-900/95 text-white flex flex-col justify-between text-xs font-sans overflow-y-auto transition-all duration-300 ease-in-out z-20 ${
+        {/* Sidebar ขวา — จอใหญ่ลอยทับขวาแผนที่ / จอมือถือเลื่อนขึ้นจากด้านล่างแทน ไม่บังแผนที่ทั้งจอ */}
+        <div className={`absolute inset-x-0 bottom-0 md:inset-x-auto md:bottom-auto md:top-18 md:right-0 md:h-full bg-slate-900/95 text-white flex flex-col justify-between text-xs font-sans overflow-y-auto transition-all duration-300 ease-in-out z-20 rounded-t-2xl md:rounded-none border-t md:border-t-0 border-slate-700 ${
           isSidebarOpen
-            ? 'w-64 p-4 opacity-100'
-            : 'w-0 p-0 opacity-0 pointer-events-none overflow-hidden'
+            ? 'h-[75%] md:h-full w-full md:w-64 p-4 opacity-100'
+            : 'h-0 md:w-0 p-0 opacity-0 pointer-events-none overflow-hidden'
         }`}>
           <div className="space-y-4">
             <div className="flex items-center justify-between border-b border-slate-800 pb-2">
@@ -174,9 +175,19 @@ export default function InteractiveMap({
                 <Shield className="w-4 h-4 text-sky-400 animate-pulse" />
                 ค่าประเมินความเสี่ยงความโปร่งใส
               </div>
-              <span className="text-[9px] bg-slate-800 text-slate-400 px-1.5 py-0.5 rounded font-mono font-bold tracking-wide">
-                THA CHIN GIS
-              </span>
+              <div className="flex items-center gap-2">
+                <span className="text-[9px] bg-slate-800 text-slate-400 px-1.5 py-0.5 rounded font-mono font-bold tracking-wide">
+                  THA CHIN GIS
+                </span>
+                <button
+                  type="button"
+                  onClick={() => setIsSidebarOpen(false)}
+                  className="text-slate-400 hover:text-white transition-colors p-0.5"
+                  title="ปิดแผงข้อมูล"
+                >
+                  <X className="w-4 h-4" />
+                </button>
+              </div>
             </div>
 
             {selectedFactory ? (
